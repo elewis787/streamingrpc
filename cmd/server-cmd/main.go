@@ -14,6 +14,7 @@ func main() {
 	grpcServer := grpc.NewServer(opts...)
 
 	pb.RegisterTransportServer(grpcServer, &server.Server{})
+	pb.RegisterHelloServer(grpcServer, &server.HelloServer{})
 	lis, err := net.Listen("tcp", "127.0.0.1:8787")
 	if err != nil {
 		log.Println(err)

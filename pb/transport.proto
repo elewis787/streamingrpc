@@ -2,11 +2,20 @@ syntax = "proto3";
 
 package pb;
 
+
+// Show two streaming rpc services to be registered under
+// one tcp port 
+
 service Transport {
     rpc Stream(stream Packet) returns (stream Packet) {} 
 }
 
+service Hello {
+    rpc Stream(stream Packet) returns (stream Packet) {}
+}
+
 
 message Packet {
-    bytes payload = 1;
+    bytes payload = 2;
 }
+

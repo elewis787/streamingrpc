@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -33,74 +34,32 @@ func main() {
 	}
 	defer conn.Close()
 
-	grpcClient := pb.NewTransportClient(conn)
+	ts := pb.NewTransportClient(conn)
 
-	streamClient := &client.Client{}
-	log.Println("Starting client ... ")
+	cli := &client.Client{
+		Transport: ts,
+	}
+
+	hc := pb.NewHelloClient(conn)
+
+	helloCli := &client.HelloClient{
+		HC: hc,
+	}
+
+	// TCP - MULTIPLEXING
+	// 1 TCP conenction
+	// 6 virtual streams
+	//
+	// stream 1
 	wg := &sync.WaitGroup{}
-	wg.Add(9)
-	go func() {
-		// rpc
-		if err := streamClient.Stream(ctx, grpcClient, []byte("client-hello-1")); err != nil {
-			log.Println(err)
-			wg.Done()
-		}
-	}()
-	go func() {
-		// rpc
-		if err := streamClient.Stream(ctx, grpcClient, []byte("client-hello-2")); err != nil {
-			log.Println(err)
-			wg.Done()
-		}
-	}()
-	go func() {
-		// rpc
-		if err := streamClient.Stream(ctx, grpcClient, []byte("client-hello-3")); err != nil {
-			log.Println(err)
-			wg.Done()
-		}
-	}()
-	go func() {
-		// rpc
-		if err := streamClient.Stream(ctx, grpcClient, []byte("client-hello-4")); err != nil {
-			log.Println(err)
-			wg.Done()
-		}
-	}()
-	go func() {
-		// rpc
-		if err := streamClient.Stream(ctx, grpcClient, []byte("client-hello-5")); err != nil {
-			log.Println(err)
-			wg.Done()
-		}
-	}()
-	go func() {
-		// rpc
-		if err := streamClient.Stream(ctx, grpcClient, []byte("client-hello-6")); err != nil {
-			log.Println(err)
-			wg.Done()
-		}
-	}()
-	go func() {
-		// rpc
-		if err := streamClient.Stream(ctx, grpcClient, []byte("client-hello-7")); err != nil {
-			log.Println(err)
-			wg.Done()
-		}
-	}()
-	go func() {
-		// rpc
-		if err := streamClient.Stream(ctx, grpcClient, []byte("client-hello-8")); err != nil {
-			log.Println(err)
-			wg.Done()
-		}
-	}()
-	go func() {
-		// rpc
-		if err := streamClient.Stream(ctx, grpcClient, []byte("client-hello-9")); err != nil {
-			log.Println(err)
-			wg.Done()
-		}
-	}()
+	wg.Add(6)
+
+	go cli.Stream(ctx, []byte(fmt.Sprintf("client-hello-1")))
+	go cli.Stream(ctx, []byte(fmt.Sprintf("client-hello-3")))
+	go cli.Stream(ctx, []byte(fmt.Sprintf("client-hello-3")))
+
+	go helloCli.Stream(ctx, []byte(fmt.Sprintf("client-hello-4")))
+	go helloCli.Stream(ctx, []byte(fmt.Sprintf("client-hello-5")))
+	go helloCli.Stream(ctx, []byte(fmt.Sprintf("client-hello-6")))
 	wg.Wait()
 }

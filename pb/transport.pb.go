@@ -33,7 +33,7 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Packet struct {
-	Payload []byte `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
+	Payload []byte `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
 }
 
 func (m *Packet) Reset()                    { *m = Packet{} }
@@ -156,16 +156,112 @@ var _Transport_serviceDesc = grpc.ServiceDesc{
 	Metadata: "transport.proto",
 }
 
+// Client API for Hello service
+
+type HelloClient interface {
+	Stream(ctx context.Context, opts ...grpc.CallOption) (Hello_StreamClient, error)
+}
+
+type helloClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewHelloClient(cc *grpc.ClientConn) HelloClient {
+	return &helloClient{cc}
+}
+
+func (c *helloClient) Stream(ctx context.Context, opts ...grpc.CallOption) (Hello_StreamClient, error) {
+	stream, err := grpc.NewClientStream(ctx, &_Hello_serviceDesc.Streams[0], c.cc, "/pb.Hello/Stream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &helloStreamClient{stream}
+	return x, nil
+}
+
+type Hello_StreamClient interface {
+	Send(*Packet) error
+	Recv() (*Packet, error)
+	grpc.ClientStream
+}
+
+type helloStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *helloStreamClient) Send(m *Packet) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *helloStreamClient) Recv() (*Packet, error) {
+	m := new(Packet)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// Server API for Hello service
+
+type HelloServer interface {
+	Stream(Hello_StreamServer) error
+}
+
+func RegisterHelloServer(s *grpc.Server, srv HelloServer) {
+	s.RegisterService(&_Hello_serviceDesc, srv)
+}
+
+func _Hello_Stream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(HelloServer).Stream(&helloStreamServer{stream})
+}
+
+type Hello_StreamServer interface {
+	Send(*Packet) error
+	Recv() (*Packet, error)
+	grpc.ServerStream
+}
+
+type helloStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *helloStreamServer) Send(m *Packet) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *helloStreamServer) Recv() (*Packet, error) {
+	m := new(Packet)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+var _Hello_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "pb.Hello",
+	HandlerType: (*HelloServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Stream",
+			Handler:       _Hello_Stream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "transport.proto",
+}
+
 func init() { proto.RegisterFile("transport.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 114 bytes of a gzipped FileDescriptorProto
+	// 125 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2f, 0x29, 0x4a, 0xcc,
 	0x2b, 0x2e, 0xc8, 0x2f, 0x2a, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x2a, 0x48, 0x52,
 	0x52, 0xe2, 0x62, 0x0b, 0x48, 0x4c, 0xce, 0x4e, 0x2d, 0x11, 0x92, 0xe0, 0x62, 0x2f, 0x48, 0xac,
-	0xcc, 0xc9, 0x4f, 0x4c, 0x91, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x09, 0x82, 0x71, 0x8d, 0x8c, 0xb9,
+	0xcc, 0xc9, 0x4f, 0x4c, 0x91, 0x60, 0x52, 0x60, 0xd4, 0xe0, 0x09, 0x82, 0x71, 0x8d, 0x8c, 0xb9,
 	0x38, 0x43, 0x60, 0x5a, 0x85, 0xd4, 0xb8, 0xd8, 0x82, 0x4b, 0x8a, 0x52, 0x13, 0x73, 0x85, 0xb8,
-	0xf4, 0x0a, 0x92, 0xf4, 0x20, 0x9a, 0xa5, 0x90, 0xd8, 0x4a, 0x0c, 0x1a, 0x8c, 0x06, 0x8c, 0x49,
-	0x6c, 0x60, 0x3b, 0x8c, 0x01, 0x01, 0x00, 0x00, 0xff, 0xff, 0x3a, 0x9d, 0xe0, 0x10, 0x76, 0x00,
-	0x00, 0x00,
+	0xf4, 0x0a, 0x92, 0xf4, 0x20, 0x9a, 0xa5, 0x90, 0xd8, 0x4a, 0x0c, 0x1a, 0x8c, 0x06, 0x8c, 0x46,
+	0xfa, 0x5c, 0xac, 0x1e, 0xa9, 0x39, 0x39, 0xf9, 0xc4, 0x6a, 0x48, 0x62, 0x03, 0x3b, 0xca, 0x18,
+	0x10, 0x00, 0x00, 0xff, 0xff, 0xaf, 0xd1, 0xe5, 0x78, 0xa7, 0x00, 0x00, 0x00,
 }

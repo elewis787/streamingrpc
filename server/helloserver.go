@@ -9,12 +9,12 @@ import (
 
 var _ pb.TransportServer = &Server{}
 
-// Server - todo
-type Server struct {
+// HelloServer - todo
+type HelloServer struct {
 }
 
 // Stream - todo
-func (s *Server) Stream(stream pb.Transport_StreamServer) error {
+func (s *HelloServer) Stream(stream pb.Hello_StreamServer) error {
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
@@ -23,8 +23,9 @@ func (s *Server) Stream(stream pb.Transport_StreamServer) error {
 		if err != nil {
 			return err
 		}
-		log.Println("Server recieved : ", in)
-		in.Payload = append(in.Payload, []byte("-server")...)
+
+		log.Println("Hello Server recieved : ", in)
+		in.Payload = append(in.Payload, []byte("-HelloServer")...)
 		if err := stream.Send(in); err != nil {
 			return err
 		}

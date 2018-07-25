@@ -8,19 +8,19 @@ import (
 	"golang.org/x/net/context"
 )
 
-// Client todo
-type Client struct {
-	Transport pb.TransportClient
+// HelloClient todo
+type HelloClient struct {
+	HC pb.HelloClient
 }
 
 // Stream - todo
-func (c *Client) Stream(ctx context.Context, msg []byte) error {
+func (c *HelloClient) Stream(ctx context.Context, msg []byte) error {
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
-			stream, err := c.Transport.Stream(ctx)
+			stream, err := c.HC.Stream(ctx)
 			if err != nil {
 				return err
 			}
