@@ -21,6 +21,7 @@ very basic grpc bidirectional streaming rpc.
 - auto config 
 - config messages 
 - comments/cleanup 
+- multiple service defs
 
 
 
